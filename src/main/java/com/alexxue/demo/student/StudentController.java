@@ -1,5 +1,6 @@
 package com.alexxue.demo.student;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -11,11 +12,15 @@ import static com.alexxue.demo.student.Student.Gender.MALE;
 
 @RestController
 public class StudentController {
+    private final StudentService studentService;
+
+    @Autowired
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
+    }
+
     @GetMapping("students")
     public List<Student> getAllStudents() {
-        return List.of(
-                new Student(UUID.randomUUID(), "James","Bond", "jamesbond@gmail.com", MALE),
-                new Student(UUID.randomUUID(), "Elisa","Tamara", "elisatamara@gmail.com", FEMALE)
-        );
+        return studentService.getAllStudents();
     }
 }
