@@ -25,11 +25,29 @@ public class StudentDao {
                 "SELECT student_id, " +
                 " first_name," +
                 " last_name, " +
-                " email" +
+                " email," +
                 " gender " +
                 "FROM student";
         List<Student> students = jdbcTemplate.query(sql, mapStudentFromDb());
         return students;
+    }
+
+    int insertStudent(UUID studentId, Student student) {
+        String sql = "" +
+                "INSERT INTO student " +
+                "(student_id, first_name, last_name, email, gender) " +
+                "VALUES (?, ?, ?, ?, ?)";
+
+        // update = 1 if successful, otherwise 0
+        int update = jdbcTemplate.update(
+                sql,
+                studentId,
+                student.getFirstName(),
+                student.getLastName(),
+                student.getEmail(),
+                student.getGender().name().toUpperCase());
+
+        return update;
     }
 
     private static RowMapper<Student> mapStudentFromDb() {
@@ -50,4 +68,6 @@ public class StudentDao {
                     gender);
         };
     }
+
+
 }

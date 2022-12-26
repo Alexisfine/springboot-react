@@ -4,16 +4,20 @@ import {
   Table, 
   Avatar,
   Spin, 
+  Modal
   } from 'antd';
 import {LoadingOutlined} from '@ant-design/icons'  
 import './App.css';
 import {getAllStudents} from './client';
 import { IStudent } from './dataTypes';
 import Container from './components/Container';
+import Footer from './components/Footer';
+import AddStudentForm from './components/forms/AddStudentForm';
 
 function App() {
   const [students, setStudents] = useState<IStudent[]>([]);
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(()=>{
     const fetchStudents = async () => {
@@ -76,15 +80,34 @@ function App() {
         (<Container>
             <Spin indicator={antIcon}></Spin>
         </Container>)
-        : (<Container>
-            <Table 
-              dataSource={students} 
+        : (<Container> 
+            <Table
+              style={{marginBottom: '100px'}} 
+              dataSource={students}  
               columns={columns}
               rowKey='studentId'
               pagination={false}/>
           </Container>)}
+        <Modal title='Add new student' visible={modalVisible}  open={modalVisible}
+          onOk={e=>setModalVisible(false)} onCancel={e=>setModalVisible(false)}   width={1000}> 
+          <AddStudentForm onSuccess={()=>{
+            setModalVisible(false);
+            const fetchStudents = async () => {
+              setLoading(true);
+              try {
+                const res = await axios.get('/students');
+                setStudents(res.data);
+                setLoading(false);
+        
+              } catch (err) {
+                console.log(err); 
+              }
+              }
+            fetchStudents()}}/>
+        </Modal>  
+        <Footer numberOfStudents={students.length} setModalVisible={setModalVisible}/>
     </>
-  );
+  ); 
 }
 
 export default App;
