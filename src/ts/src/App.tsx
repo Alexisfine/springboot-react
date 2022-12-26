@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import React, {useEffect, useState} from 'react';
 import {
   Table, 
@@ -6,6 +6,7 @@ import {
   Spin, 
   Modal
   } from 'antd';
+import { errorNotification } from './components/Notification';  
 import {LoadingOutlined} from '@ant-design/icons'  
 import './App.css';
 import {getAllStudents} from './client';
@@ -13,6 +14,7 @@ import { IStudent } from './dataTypes';
 import Container from './components/Container';
 import Footer from './components/Footer';
 import AddStudentForm from './components/forms/AddStudentForm';
+import {ApiAxiosError} from './dataTypes';
 
 function App() {
   const [students, setStudents] = useState<IStudent[]>([]);
@@ -28,7 +30,15 @@ function App() {
         setLoading(false);
 
       } catch (err) {
-        console.log(err); 
+        if (err instanceof AxiosError) {
+          console.log(err.response!.data);
+          const errorData = err.response?.data;
+          let apiErrorData = errorData as ApiAxiosError
+          errorNotification(apiErrorData.message, apiErrorData.httpStatus)
+        } else {
+          console.log(err); 
+        }
+        setLoading(false);
       }
     }
     fetchStudents();
@@ -90,7 +100,8 @@ function App() {
           </Container>)}
         <Modal title='Add new student' visible={modalVisible}  open={modalVisible}
           onOk={e=>setModalVisible(false)} onCancel={e=>setModalVisible(false)}   width={1000}> 
-          <AddStudentForm onSuccess={()=>{
+          <AddStudentForm 
+          onSuccess={()=>{
             setModalVisible(false);
             const fetchStudents = async () => {
               setLoading(true);
@@ -100,10 +111,25 @@ function App() {
                 setLoading(false);
         
               } catch (err) {
-                console.log(err); 
+                if (err instanceof AxiosError) {
+                  console.log(err.response!.data);
+                  const errorData = err.response?.data;
+                  let apiErrorData = errorData as ApiAxiosError
+                  errorNotification(apiErrorData.message, apiErrorData.httpStatus)
+                } else {
+                  console.log(err); 
+                }
+                setLoading(false);
               }
               }
-            fetchStudents()}}/>
+            fetchStudents()}}
+          onFailure = {(err) => {
+            const errorData = err.response?.data;
+            console.log(errorData);
+            let apiErrorData = errorData as ApiAxiosError
+            errorNotification(apiErrorData.message, apiErrorData.httpStatus)
+            
+          }}  />
         </Modal>  
         <Footer numberOfStudents={students.length} setModalVisible={setModalVisible}/>
     </>

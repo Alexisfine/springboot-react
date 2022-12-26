@@ -50,6 +50,21 @@ public class StudentDao {
         return update;
     }
 
+    @SuppressWarnings("ConstantConditions")
+    boolean isEmailTaken(String email) {
+        String sql = "" +
+                "SELECT EXISTS ( " +
+                "SELECT 1 FROM student " +
+                "WHERE email = ?" +
+                " )";
+        return jdbcTemplate.queryForObject(
+                sql,
+                new Object[] {email},
+                (resultSet, index) -> resultSet.getBoolean(1));
+    }
+
+
+
     private static RowMapper<Student> mapStudentFromDb() {
         return (resultSet, rowNum) -> {
             String studentIdStr = resultSet.getString("student_id");
@@ -68,6 +83,7 @@ public class StudentDao {
                     gender);
         };
     }
+
 
 
 }

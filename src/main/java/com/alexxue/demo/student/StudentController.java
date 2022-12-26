@@ -1,5 +1,7 @@
 package com.alexxue.demo.student;
 
+import com.alexxue.demo.exception.ApiRequestException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +25,9 @@ public class StudentController {
     List<Student> getAllStudents() {
         return studentService.getAllStudents();
     }
+
     @PostMapping
-    void addNewStudent(@RequestBody Student student) {
+    void addNewStudent(@RequestBody @Valid Student student) {
         studentService.addNewStudent(student);
     }
 }
